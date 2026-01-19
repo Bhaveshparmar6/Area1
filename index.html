@@ -152,21 +152,26 @@ const FEEDERS={
 ]
 };
 function login(){
- const u=USERS.find(x=>x.u===loginUser.value && x.p===loginPass.value);
- if(!u){showMsg("Invalid Login");return;}
- CURRENT_USER=u;
-ui_name.innerText = "👤 " + CURRENT_USER.n;
-ui_inst.innerText = "Installation : " + CURRENT_USER.i;
-userInfo.classList.remove("hidden");
+ const u = USERS.find(x =>
+   x.u === lg_user.value &&
+   x.p === lg_pass.value
+ );
+
+ if(!u){
+   alert("Invalid Login");
+   return;
+ }
+
+ CURRENT_USER = u;
+
  loginBox.classList.add("hidden");
  mainBox.classList.remove("hidden");
  shutdownBox.classList.add("hidden");
  resumeBox.classList.add("hidden");
- mainBox.classList.remove("hidden");
-  populateFeeders();
+
+ populateFeeders();
  loadActiveShutdowns();
 }
-
 function populateFeeders(){
  sd_feeder.innerHTML=rs_feeder.innerHTML="";
  (FEEDERS[CURRENT_USER.i]||FEEDERS.ALL).forEach(f=>{
