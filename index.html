@@ -203,7 +203,19 @@ const FEEDERS={
  "PREKSHA BHARTI INFOCITY FEEDER","TP-44 FEEDER","ZUNDAL AG FEEDER"
 ]
 };
+<script>
+const WEBAPP_URL="https://script.google.com/macros/s/AKfycbyOHQzRGiI0ql-Tlzbm9BhtFfE12YXEIy9TCfP1_uzdtbn4ltTcjBWJwnpWOF1-u08tkA/exec";
+const CSV_URL="https://docs.google.com/spreadsheets/d/1NLMcoIjlo5elmrALUXPfvGOEqToS8tFPfGThRZ8maiU/export?format=csv";
 
+let CURRENT_USER = {};
+let LAST_SHUTDOWN_TIME = {};
+let LAST_RESUME_DATA = null;
+
+/* 🚫 Special character validator */
+function hasSpecialChar(text){
+  return !/^[A-Z0-9 \-/]+$/i.test(text);
+}
+  
 let CURRENT_USER={}, LAST_SHUTDOWN_TIME={};
 let LAST_RESUME_DATA = null;
 
@@ -467,4 +479,5 @@ document.querySelectorAll("textarea, input[type=text]").forEach(el=>{
 </script>
 </body>
 </html>
+
 
