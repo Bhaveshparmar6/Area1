@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -158,7 +159,7 @@ button{
 </div>
 
 <script>
-const WEBAPP_URL="https://script.google.com/macros/s/AKfycbz6UjDgGV1rRlikgef1l68HItm_c0PDDiG_aPnCd_QwwshC3O9A1yFzeMXmu1eT0BRing/exec";
+const WEBAPP_URL="https://script.google.com/macros/s/AKfycbyOHQzRGiI0ql-Tlzbm9BhtFfE12YXEIy9TCfP1_uzdtbn4ltTcjBWJwnpWOF1-u08tkA/exec";
 const CSV_URL="https://docs.google.com/spreadsheets/d/1NLMcoIjlo5elmrALUXPfvGOEqToS8tFPfGThRZ8maiU/export?format=csv";
 const USERS=[
  {u:"121318",p:"admin123",n:"SYSTEM ADMIN",i:"ALL",admin:true},
@@ -208,7 +209,7 @@ let LAST_RESUME_DATA = null;
 
 // 🚫 Special Character Validator
 function hasSpecialChar(text){
-  // allowed: A–Z, a–z, 0–9,.,space,., - and /
+  // allowed: A–Z, a–z, 0–9, space, - and /
   const regex = /^[a-zA-Z0-9 \-/]+$/;
   return !regex.test(text);
 }
@@ -429,8 +430,7 @@ function shareWhatsApp(feeder, type, time, inst){
 }
 function shareResumeWhatsApp(){
  if(!LAST_RESUME_DATA){
-
-showMsg("No Resume Data Found");
+  showMsg("No Resume Data Found");
   return;
  }
 
