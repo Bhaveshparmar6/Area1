@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html>
 <head>
 <meta charset="UTF-8">
@@ -400,19 +400,26 @@ if(hasSpecialChar(sd_info.value)){
  backToMain();
 }
 
-function openShutdown(){mainBox.classList.add("hidden");shutdownBox.classList.remove("hidden")}
-function openResume(){
- mainBox.classList.add("hidden");
- resumeBox.classList.remove("hidden");
-
- // hide initially, will show only after submit
- document.getElementById("resumeShareBtn").classList.add("hidden");
+function openShutdown(){
+  mainBox.classList.add("hidden");
+  resumeBox.classList.add("hidden");
+  shutdownBox.classList.remove("hidden");
 }
+
+function openResume(){
+  mainBox.classList.add("hidden");
+  shutdownBox.classList.add("hidden");
+  resumeBox.classList.remove("hidden");
+
+  document.getElementById("resumeShareBtn").classList.add("hidden");
+}
+
 function backToMain(){
- shutdownBox.classList.add("hidden");
- resumeBox.classList.add("hidden");
- mainBox.classList.remove("hidden");
- loadActiveShutdowns();
+  shutdownBox.classList.add("hidden");
+  resumeBox.classList.add("hidden");
+  mainBox.classList.remove("hidden");
+
+  loadActiveShutdowns();
 }
 function showMsg(t){msg.innerText=t;setTimeout(()=>msg.innerText="",3000)}
 setInterval(loadActiveShutdowns,30000);
