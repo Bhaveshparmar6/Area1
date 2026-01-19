@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -16,98 +15,150 @@ header{
   padding:14px 18px;
   font-size:18px;
   font-weight:600;
+  text-align:center;
 }
-.card{
-  background:#fff;
-  margin:14px;
+.container{
   padding:16px;
-  border-radius:8px;
-  box-shadow:0 2px 6px rgba(0,0,0,.1);
+  max-width:480px;
+  margin:auto;
 }
-.hidden{display:none;}
+.card{margin-bottom:20px}
+h2,h3{
+  margin:12px 0;
+  color:#1f3a5f;
+  text-align:center;
+}
 input,select,textarea{
   width:100%;
-  padding:8px;
-  margin:6px 0;
-  border-radius:4px;
-  border:1px solid #ccc;
-  font-size:14px;
+  padding:12px;
+  margin-top:6px;
+  border-radius:10px;
+  border:1px solid #dcdfe4;
+  font-size:15px;
 }
 button{
-  padding:10px 14px;
-  border:none;
-  border-radius:5px;
-  cursor:pointer;
+  width:100%;
+  padding:14px;
+  margin-top:14px;
+  font-size:16px;
   font-weight:600;
-  margin-top:8px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
 }
-.btn-login{background:#1f3a5f;color:#fff;width:100%;}
-.btn-shutdown{background:#c0392b;color:#fff;}
-.btn-resume{background:#27ae60;color:#fff;}
-.btn-back{background:#7f8c8d;color:#fff;}
-.msg{margin-top:8px;font-weight:600;}
-.list{margin-top:8px;font-size:14px;}
-.list div{padding:6px;border-bottom:1px solid #ddd;}
+.btn-login{background:#1f3a5f;color:#fff}
+.btn-shutdown{background:#e74c3c;color:#fff}
+.btn-resume{background:#27ae60;color:#fff}
+.btn-back{background:#7f8c8d;color:#fff}
+.hidden{display:none}
+.shutdown-item{
+  background:#fff;
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+}
+.shutdown-row{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:8px;
+  font-size:14px;
+}
+.shutdown-label{color:#6b7280;font-weight:600}
+.shutdown-value{font-weight:700}
+.install-badge{
+  padding:4px 12px;
+  border-radius:999px;
+  background:#e5f0ff;
+  color:#1f3a5f;
+  font-size:12px;
+  font-weight:700;
+}
+#msg{text-align:center;margin-top:10px;font-weight:600}
 </style>
 </head>
 
 <body>
-
 <header>POWER SHUTDOWN MANAGEMENT APP - AREA-IV</header>
+<div id="userInfo" class="hidden" style="
+  background:#ffffff;
+  margin:10px 16px;
+  padding:10px 14px;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06);
+  text-align:center;
+">
+  <div style="font-size:15px;font-weight:700;color:#1f3a5f" id="ui_name"></div>
+  <div style="font-size:13px;color:#6b7280" id="ui_inst"></div>
+</div>
 
-<!-- LOGIN -->
+<div class="container">
+
 <div class="card" id="loginBox">
-  <h3>Login</h3>
-  <input id="lg_user" placeholder="Username">
-  <input id="lg_pass" type="password" placeholder="Password">
-  <button class="btn-login" onclick="login()">LOGIN</button>
-  <div class="msg" id="loginMsg"></div>
+
+<!-- ONGC LOGO -->
+<div style="text-align:center;margin-bottom:12px;">
+  <img 
+    src="Logo.png"
+    alt="ONGC Logo"
+    style="
+      width:120px;
+      background:#fff;
+      padding:8px;
+      border-radius:12px;
+      box-shadow:0 4px 10px rgba(0,0,0,.15);
+    ">
+</div>
+<h3>USER LOGIN</h3>
+<input id="loginUser" placeholder="Username">
+<input type="password" id="loginPass" placeholder="Password">
+<button class="btn-login" onclick="login()">Login</button>
 </div>
 
-<!-- MAIN -->
 <div class="card hidden" id="mainBox">
-  <h3 id="welcome"></h3>
-  <button class="btn-shutdown" onclick="openShutdown()">Shutdown Entry</button>
-  <button class="btn-resume" onclick="openResume()">Resume Entry</button>
-  <button class="btn-login hidden" id="planBtn">Plan Shutdown (ADMIN)</button>
-
-  <h4>Active Shutdowns</h4>
-  <div class="list" id="activeList"></div>
+<h2>ACTIVE SHUTDOWN FEEDERS</h2>
+<div id="activeShutdowns">Loading...</div>
+<button class="btn-shutdown" onclick="openShutdown()">Shutdown</button>
+<button class="btn-resume" onclick="openResume()">Resume</button>
 </div>
 
-<!-- SHUTDOWN -->
 <div class="card hidden" id="shutdownBox">
-  <h3>Shutdown Entry</h3>
-  <select id="sd_feeder"></select>
-  <input type="datetime-local" id="sd_time">
-  <select id="sd_type">
-    <option>UNPLAN</option>
-    <option>PLAN</option>
-  </select>
-  <textarea id="sd_info" placeholder="Information"></textarea>
-  <button class="btn-shutdown" onclick="submitShutdown()">Submit Shutdown</button>
-  <button class="btn-back" onclick="back()">Back</button>
-  <div class="msg" id="sd_msg"></div>
+<h3>Shutdown Entry</h3>
+<select id="sd_feeder"></select>
+<input type="datetime-local" id="sd_time">
+<select id="sd_type">
+<option value="">Select Type</option>
+<option>PLAN PSD</option>
+<option>PARTIAL PLAN PSD</option>
+<option>UNPLAN PSD</option>
+<option>PARTIAL UNPLAN PSD</option>
+</select>
+<textarea id="sd_info" placeholder="Information"></textarea>
+<button class="btn-shutdown" onclick="submitShutdown()">Submit</button>
+<button class="btn-back" onclick="backToMain()">Back</button>
 </div>
 
-<!-- RESUME -->
 <div class="card hidden" id="resumeBox">
-  <h3>Resume Entry</h3>
-  <select id="rs_feeder"></select>
-  <input type="datetime-local" id="rs_time">
-  <input id="rs_loss" placeholder="Production Loss">
-  <input id="rs_dg" placeholder="DG Deployed">
-  <textarea id="rs_rem" placeholder="Remarks"></textarea>
-  <button class="btn-resume" onclick="submitResume()">Submit Resume</button>
-  <button id="resumeShareBtn" class="btn-resume hidden"
-    onclick="shareResumeWhatsApp()">📲 Share Resume</button>
-  <button class="btn-back" onclick="back()">Back</button>
-  <div class="msg" id="rs_msg"></div>
+<h3>Resume Entry</h3>
+<select id="rs_feeder"></select>
+<input type="datetime-local" id="rs_time">
+<input id="rs_loss" type="number" placeholder="Production Loss" inputmode="numeric" min="0">
+<input id="rs_dg" type="number" placeholder="DG Deployed" inputmode="numeric" min="0">
+<textarea id="rs_rem" placeholder="Actual Reason"></textarea>
+<button class="btn-resume" onclick="submitResume()">Submit</button>
+<button id="resumeShareBtn"
+  class="btn-resume hidden"
+  onclick="shareResumeWhatsApp()">
+  📲 Share Resume on WhatsApp
+</button>
+<button class="btn-back" onclick="backToMain()">Back</button>
+</div>
+
+<div id="msg"></div>
 </div>
 
 <script>
-/* ================= CONFIG ================= */
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyOHQzRGiI0ql-Tlzbm9BhtFfE12YXEIy9TCfP1_uzdtbn4ltTcjBWJwnpWOF1-u08tkA/exec";
+const WEBAPP_URL="https://script.google.com/macros/s/AKfycbyOHQzRGiI0ql-Tlzbm9BhtFfE12YXEIy9TCfP1_uzdtbn4ltTcjBWJwnpWOF1-u08tkA/exec";
 const CSV_URL="https://docs.google.com/spreadsheets/d/1NLMcoIjlo5elmrALUXPfvGOEqToS8tFPfGThRZ8maiU/export?format=csv";
 const USERS=[
  {u:"121318",p:"admin123",n:"SYSTEM ADMIN",i:"ALL",admin:true},
@@ -151,27 +202,32 @@ const FEEDERS={
  "PREKSHA BHARTI INFOCITY FEEDER","TP-44 FEEDER","ZUNDAL AG FEEDER"
 ]
 };
+
+let CURRENT_USER={}, LAST_SHUTDOWN_TIME={};
+let LAST_RESUME_DATA = null;
+
+// 🚫 Special Character Validator
+function hasSpecialChar(text){
+  // allowed: A–Z, a–z, 0–9, space,., - and /
+  const regex = /^[a-zA-Z0-9 \-/]+$/;
+  return !regex.test(text);
+}
 function login(){
- const u = USERS.find(x =>
-   x.u === lg_user.value &&
-   x.p === lg_pass.value
- );
-
- if(!u){
-   alert("Invalid Login");
-   return;
- }
-
- CURRENT_USER = u;
-
+ const u=USERS.find(x=>x.u===loginUser.value && x.p===loginPass.value);
+ if(!u){showMsg("Invalid Login");return;}
+ CURRENT_USER=u;
+ui_name.innerText = "👤 " + CURRENT_USER.n;
+ui_inst.innerText = "Installation : " + CURRENT_USER.i;
+userInfo.classList.remove("hidden");
  loginBox.classList.add("hidden");
  mainBox.classList.remove("hidden");
  shutdownBox.classList.add("hidden");
  resumeBox.classList.add("hidden");
-
- populateFeeders();
+ mainBox.classList.remove("hidden");
+  populateFeeders();
  loadActiveShutdowns();
 }
+
 function populateFeeders(){
  sd_feeder.innerHTML=rs_feeder.innerHTML="";
  (FEEDERS[CURRENT_USER.i]||FEEDERS.ALL).forEach(f=>{
@@ -379,22 +435,7 @@ function shareWhatsApp(feeder, type, time, inst){
 function shareResumeWhatsApp(){
  if(!LAST_RESUME_DATA){
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  showMsg("No Resume Data Found");
+showMsg("No Resume Data Found");
   return;
  }
 
