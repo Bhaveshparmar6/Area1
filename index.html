@@ -368,7 +368,7 @@ if(hasSpecialChar(rs_rem.value)){
  showMsg("Resume Submitted");
 }
 function submitShutdown(){
- if(!sd_feeder.value||!sd_time.value||!sd_type.value||!sd_info.value){
+ if(rs_loss.value === "" || rs_dg.value === ""){
  showMsg("All Shutdown fields required");
  return;
 }
@@ -467,3 +467,4 @@ document.querySelectorAll("textarea, input[type=text]").forEach(el=>{
 </script>
 </body>
 </html>
+
