@@ -318,14 +318,6 @@ function submitResume(){
  showMsg("All Resume fields required");
  return;
 }
-
-// 🚫 Special character validation
-if(hasSpecialChar(rs_rem.value)){
- showMsg("❌ Do not use special characters");
- return;
-}
-
-
  if(!LAST_SHUTDOWN_TIME[rs_feeder.value]){
   showMsg("Feeder not found in shutdown");
   return;
