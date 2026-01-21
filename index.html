@@ -20,6 +20,7 @@ button{border:none;font-weight:700;cursor:pointer}
 .card{background:#fff;padding:16px;border-radius:14px;margin-bottom:14px}
 #msg{text-align:center;font-weight:700;margin-top:10px}
 .shutdown-item{border:1px solid #ddd;padding:12px;border-radius:12px;margin-bottom:10px}
+.whatsapp{background:#25D366;color:#fff;margin-top:8px}
 </style>
 </head>
 
@@ -28,6 +29,7 @@ button{border:none;font-weight:700;cursor:pointer}
 
 <div class="container">
 
+<!-- LOGIN -->
 <div class="card" id="loginBox">
 <h3 style="text-align:center">USER LOGIN</h3>
 <input id="loginUser" placeholder="Username">
@@ -35,6 +37,7 @@ button{border:none;font-weight:700;cursor:pointer}
 <button class="btn-login" onclick="login()">Login</button>
 </div>
 
+<!-- MAIN -->
 <div class="card hidden" id="mainBox">
 <h3>ACTIVE SHUTDOWNS</h3>
 <div id="activeShutdowns">Loading…</div>
@@ -42,6 +45,7 @@ button{border:none;font-weight:700;cursor:pointer}
 <button class="btn-resume" onclick="openResume()">Resume</button>
 </div>
 
+<!-- SHUTDOWN -->
 <div class="card hidden" id="shutdownBox">
 <h3>Shutdown Entry</h3>
 <select id="sd_feeder"></select>
@@ -56,6 +60,7 @@ button{border:none;font-weight:700;cursor:pointer}
 <button onclick="backToMain()">Back</button>
 </div>
 
+<!-- RESUME -->
 <div class="card hidden" id="resumeBox">
 <h3>Resume Entry</h3>
 <select id="rs_feeder"></select>
@@ -64,6 +69,7 @@ button{border:none;font-weight:700;cursor:pointer}
 <input id="rs_dg" placeholder="DG Deployed">
 <textarea id="rs_rem" placeholder="Actual Reason"></textarea>
 <button class="btn-resume" onclick="submitResume()">Submit</button>
+<button class="whatsapp hidden" id="resumeShareBtn" onclick="shareResume()">📲 Share Resume</button>
 <button onclick="backToMain()">Back</button>
 </div>
 
@@ -77,7 +83,7 @@ const CSV_URL="https://docs.google.com/spreadsheets/d/1NLMcoIjlo5elmrALUXPfvGOEq
 const USERS=[{u:"121318",p:"admin123",n:"ADMIN",i:"ALL",admin:true}];
 const FEEDERS={ALL:["AKASH CERAMIC FEEDER","ITLA ONGC FEEDER-LG1"]};
 
-let CURRENT_USER={},LAST_SHUTDOWN={};
+let CURRENT_USER={}, LAST_SHUTDOWN={}, LAST_RESUME=null;
 
 function login(){
  const u=USERS.find(x=>x.u===loginUser.value && x.p===loginPass.value);
@@ -102,11 +108,21 @@ function loadActive(){
  .then(r=>r.text())
  .then(t=>{
   activeShutdowns.innerHTML="";
+  LAST_SHUTDOWN={};
   t.split("\n").slice(1).forEach(r=>{
    const c=r.split(",");
-   if(c[6]===""){
-    LAST_SHUTDOWN[c[0]]=c[1];
-    activeShutdowns.innerHTML+=`<div class="shutdown-item">${c[0]}<br>${c[1]}</div>`;
+   if(c.length < 2) return;   // ✅ FIX
+   const feeder=c[0], sd=c[1], resume=c[6]||"";
+   if(!resume){
+    LAST_SHUTDOWN[feeder]=sd;
+    activeShutdowns.innerHTML+=`
+      <div class="shutdown-item">
+        <b>${feeder}</b><br>${sd}
+        <button class="whatsapp"
+          onclick="shareShutdown('${feeder}','${sd}')">
+          📲 Share Shutdown
+        </button>
+      </div>`;
    }
   });
  });
@@ -127,17 +143,37 @@ function submitShutdown(){
 }
 
 function submitResume(){
+ LAST_RESUME={
+  feeder:rs_feeder.value,
+  time:rs_time.value.replace("T"," "),
+  loss:rs_loss.value,
+  dg:rs_dg.value,
+  rem:rs_rem.value
+ };
  fetch(WEBAPP_URL+"?"+new URLSearchParams({
   action:"resume",
-  feeder:rs_feeder.value,
-  ResumeTime:rs_time.value.replace("T"," "),
+  feeder:LAST_RESUME.feeder,
+  ResumeTime:LAST_RESUME.time,
   ResumeEntryBy:CURRENT_USER.n,
-  TotalProdLoss:rs_loss.value,
-  DGDeployed:rs_dg.value,
-  Remarks:rs_rem.value
+  TotalProdLoss:LAST_RESUME.loss,
+  DGDeployed:LAST_RESUME.dg,
+  Remarks:LAST_RESUME.rem
  }));
+ document.getElementById("resumeShareBtn").classList.remove("hidden");
  msg("✅ Resume submitted");
- backToMain();
+}
+
+function shareShutdown(f,t){
+ window.open("https://wa.me/?text="+encodeURIComponent(
+  "⚡ POWER SHUTDOWN\n\nFeeder: "+f+"\nTime: "+t
+ ));
+}
+function shareResume(){
+ const d=LAST_RESUME;
+ window.open("https://wa.me/?text="+encodeURIComponent(
+  "✅ POWER RESUME\n\nFeeder: "+d.feeder+"\nTime: "+d.time+
+  "\nLoss: "+d.loss+"\nDG: "+d.dg+"\nReason: "+d.rem
+ ));
 }
 
 function openShutdown(){mainBox.classList.add("hidden");shutdownBox.classList.remove("hidden")}
