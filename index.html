@@ -104,7 +104,7 @@ let USER=null, SD=null, RS=null;
 
 /* ================= HELPERS ================= */
 const validText=v=>/^[A-Za-z0-9 .]+$/.test(v);
-const numOnly=v=>/^[0-9]+$/.test(v);
+const numOnly=v=>/^\d+(\.\d+)?$/.test(v);
 const msg=t=>document.getElementById("msg").innerText=t;
 
 function fillFeeders(sel){
@@ -112,8 +112,8 @@ function fillFeeders(sel){
  let list=[];
  if(USER.inst==="ADMIN"){
   Object.values(FEEDERS).forEach(a=>list=list.concat(a));
- } else list=FEEDERS[USER.inst];
- list.forEach(f=>sel.innerHTML+=`<option>${f}</option>`);
+ } else list=FEEDERS[USER.inst]||[];
+ list.forEach(f=>sel.innerHTML+=`<option value="${f}">${f}</option>`);
 }
 
 /* ================= LOGIN ================= */
@@ -158,7 +158,7 @@ function submitShutdown(){
   Information:SD.info,
   ShutdownEntryBy:USER.name,
   Installation:USER.inst
- }),{mode:"no-cors"});
+ }));
 
  sdWA.classList.remove("hidden");
  msg("✅ Shutdown submitted");
@@ -196,7 +196,7 @@ function submitResume(){
   Remarks:RS.rem,
   TotalProdLoss:RS.loss,
   DGDeployed:RS.dg
- }),{mode:"no-cors"});
+ }));
 
  rsWA.classList.remove("hidden");
  msg("✅ Resume submitted");
@@ -216,12 +216,16 @@ function shareResume(){
 /* ================= ACTIVE CSV ================= */
 function loadActive(){
  activeList.innerHTML="Loading...";
- fetch(CSV_URL).then(r=>r.text()).then(t=>{
-  let rows=t.trim().split("\n").slice(1), out="";
+ fetch(CSV_URL)
+ .then(r=>r.text())
+ .then(t=>{
+  let rows=t.split("\n").slice(1);
+  let out="";
   rows.forEach(r=>{
    let c=r.split(",");
+   if(!c[0]) return;
    let feeder=c[0], resume=c[6], inst=c[5];
-   if(resume && resume!=="NA") return;
+   if(resume && resume.trim()!=="NA") return;
    if(USER.inst!=="ADMIN" && inst!==USER.inst) return;
    out+=`<div class="list"><b>${feeder}</b><br>${c[1]}<br>${c[3]}</div>`;
   });
