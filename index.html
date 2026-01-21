@@ -1,4 +1,5 @@
-html>
+<!DOCTYPE html>
+<html>
 <head>
 <meta charset="UTF-8">
 <title>POWER SHUTDOWN MANAGEMENT APP - AREA-I</title>
@@ -79,7 +80,7 @@ button{
 </head>
 
 <body>
-<header>POWER SHUTDOWN MANAGEMENT APP - AREA-IV</header>
+<header>POWER SHUTDOWN MANAGEMENT APP - AREA-I</header>
 <div id="userInfo" class="hidden" style="
   background:#ffffff;
   margin:10px 16px;
@@ -118,8 +119,8 @@ button{
 <div class="card hidden" id="mainBox">
 <h2>ACTIVE SHUTDOWN FEEDERS</h2>
 <div id="activeShutdowns">Loading...</div>
-<button class="btn-shutdown" onclick="openShutdown()">Shutdown</button>
-<button class="btn-resume" onclick="openResume()">Resume</button>
+<button type="button" class="btn-shutdown" onclick="openShutdown()">Shutdown</button>
+<button type="button" class="btn-resume" onclick="openResume()">Resume</button>
 </div>
 
 <div class="card hidden" id="shutdownBox">
@@ -134,8 +135,8 @@ button{
 <option>PARTIAL UNPLAN PSD</option>
 </select>
 <textarea id="sd_info" placeholder="Information"></textarea>
-<button class="btn-shutdown" onclick="submitShutdown()">Submit</button>
-<button class="btn-back" onclick="backToMain()">Back</button>
+<button type="button" class="btn-shutdown" onclick="submitShutdown()">Submit</button>
+<button type="button" class="btn-back" onclick="backToMain()">Back</button>
 </div>
 
 <div class="card hidden" id="resumeBox">
@@ -145,14 +146,16 @@ button{
 <input id="rs_loss" type="number" placeholder="Production Loss" inputmode="numeric" min="0">
 <input id="rs_dg" type="number" placeholder="DG Deployed" inputmode="numeric" min="0">
 <textarea id="rs_rem" placeholder="Actual Reason"></textarea>
-<button class="btn-resume" onclick="submitResume()">Submit</button>
-<button id="resumeShareBtn"
+<button type="button" class="btn-resume" onclick="submitResume()">Submit</button>
+
+<button type="button"
+  id="resumeShareBtn"
   class="btn-resume hidden"
   onclick="shareResumeWhatsApp()">
   📲 Share Resume on WhatsApp
 </button>
-<button class="btn-back" onclick="backToMain()">Back</button>
-</div>
+
+<button type="button" class="btn-back" onclick="backToMain()">Back</button>
 
 <div id="msg"></div>
 </div>
