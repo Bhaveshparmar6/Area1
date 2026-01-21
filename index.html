@@ -166,8 +166,11 @@ function parseCSV(t){
 }
 
 function login(){
- const u=USERS.find(x=>x.u===loginUser.value && x.p===loginPass.value);
- if(!u){showMsg("Invalid Login");return;}
+ const u=USERS.find(x=>x.u===loginUser.value.trim() && x.p===loginPass.value.trim());
+ if(!u){
+   showMsg("❌ Invalid Login");
+   return;
+ }
  CURRENT_USER=u;
  ui_name.innerText="👤 "+u.n;
  ui_inst.innerText="Installation : "+u.i;
@@ -176,6 +179,7 @@ function login(){
  mainBox.classList.remove("hidden");
  populateFeeders();
  loadActiveShutdowns();
+ showMsg("✅ Login Success");
 }
 
 function populateFeeders(){
@@ -196,12 +200,12 @@ function loadActiveShutdowns(){
   const rows=parseCSV(t);
   const h=rows.shift().map(x=>x.toUpperCase());
   const i={
-   feeder:h.indexOf("FEEDER"),
-   sd:h.indexOf("SHUTDOWN TIME"),
-   rs:h.indexOf("RESUME TIME"),
-   inst:h.indexOf("INSTALLATION"),
-   type:h.indexOf("TYPE")
-  };
+ feeder:h.indexOf("FEEDER"),
+ sd:h.indexOf("SHUTDOWN TIME"),
+ rs:h.indexOf("RESUME TIME"),
+ inst:h.indexOf("INSTALLATION"),
+ type:h.indexOf("SHUTDOWN TYPE")
+};
   let html="",count=0;
   rows.forEach(r=>{
    if(!r[i.rs]||r[i.rs]=="NA"){
