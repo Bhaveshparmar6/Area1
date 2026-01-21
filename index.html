@@ -2,56 +2,51 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>POWER SHUTDOWN MANAGEMENT – AREA IV</title>
+<title>Power Shutdown Management – Area IV</title>
 
 <style>
-body{font-family:Segoe UI,Arial;background:#f1f3f6;margin:0}
+body{font-family:Segoe UI,Arial;background:#eef2f5;margin:0}
 header{background:#1f3a5f;color:#fff;padding:14px;font-size:18px;font-weight:700;text-align:center}
-.container{max-width:480px;margin:auto;padding:16px}
-.card{background:#fff;padding:16px;border-radius:14px;margin-bottom:14px}
+.container{max-width:520px;margin:auto;padding:15px}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:15px}
 .hidden{display:none}
 input,select,textarea,button{
  width:100%;padding:12px;margin-top:10px;
  border-radius:10px;border:1px solid #ccc;font-size:15px
 }
 button{border:none;font-weight:700;cursor:pointer}
-.btn-login{background:#1f3a5f;color:#fff}
-.btn-shutdown{background:#e74c3c;color:#fff}
-.btn-resume{background:#27ae60;color:#fff}
-.btn-back{background:#7f8c8d;color:#fff}
+.btn{background:#1f3a5f;color:#fff}
+.btn-red{background:#e74c3c;color:#fff}
+.btn-green{background:#27ae60;color:#fff}
 .btn-wa{background:#25D366;color:#fff}
-#msg{text-align:center;font-weight:700;margin-top:10px}
+.list{border:1px solid #ddd;padding:10px;border-radius:10px;margin-top:10px}
+.msg{text-align:center;font-weight:700;margin-top:10px}
 </style>
 </head>
 
 <body>
-<header>POWER SHUTDOWN MANAGEMENT APP – AREA IV</header>
-
+<header>POWER SHUTDOWN MANAGEMENT – AREA IV</header>
 <div class="container">
 
 <!-- LOGIN -->
 <div class="card" id="loginBox">
-<h3 style="text-align:center">USER LOGIN</h3>
-<input id="loginUser" placeholder="Username">
-<input id="loginPass" type="password" placeholder="Password">
-<button class="btn-login" onclick="login()">Login</button>
+<h3>Login</h3>
+<input id="lu" placeholder="Username">
+<input id="lp" type="password" placeholder="Password">
+<button class="btn" onclick="login()">Login</button>
 </div>
 
 <!-- MAIN -->
 <div class="card hidden" id="mainBox">
-<h3 style="text-align:center">MAIN MENU</h3>
-<button class="btn-shutdown" onclick="openShutdown()">➕ Shutdown Entry</button>
-<button class="btn-resume" onclick="openResume()">✅ Resume Entry</button>
+<button class="btn-red" onclick="openShutdown()">➕ Shutdown Entry</button>
+<button class="btn-green" onclick="openResume()">✅ Resume Entry</button>
+<button class="btn" onclick="openActive()">📊 Active Shutdown</button>
 </div>
 
 <!-- SHUTDOWN -->
-<div class="card hidden" id="shutdownBox">
+<div class="card hidden" id="sdBox">
 <h3>Shutdown Entry</h3>
-<select id="sd_feeder">
-<option value="">Select Feeder</option>
-<option>AKASH CERAMIC FEEDER</option>
-<option>ITLA ONGC FEEDER-LG1</option>
-</select>
+<select id="sd_feeder"></select>
 <input type="datetime-local" id="sd_time">
 <select id="sd_type">
 <option value="">Select Type</option>
@@ -59,79 +54,96 @@ button{border:none;font-weight:700;cursor:pointer}
 <option>UNPLAN PSD</option>
 </select>
 <textarea id="sd_info" placeholder="Information"></textarea>
-
-<button class="btn-shutdown" onclick="submitShutdown()">Submit Shutdown</button>
-<button class="btn-wa hidden" id="sdWaBtn" onclick="shareShutdown()">📲 Share on WhatsApp</button>
-<button class="btn-back" onclick="back()">Back</button>
+<button class="btn-red" onclick="submitShutdown()">Submit</button>
+<button class="btn-wa hidden" id="sdWA" onclick="shareShutdown()">📲 Share WhatsApp</button>
+<button class="btn" onclick="back()">Back</button>
 </div>
 
 <!-- RESUME -->
-<div class="card hidden" id="resumeBox">
+<div class="card hidden" id="rsBox">
 <h3>Resume Entry</h3>
-<select id="rs_feeder">
-<option value="">Select Feeder</option>
-<option>AKASH CERAMIC FEEDER</option>
-<option>ITLA ONGC FEEDER-LG1</option>
-</select>
+<select id="rs_feeder"></select>
 <input type="datetime-local" id="rs_time">
 <input id="rs_loss" placeholder="Production Loss">
 <input id="rs_dg" placeholder="DG Deployed">
-<textarea id="rs_rem" placeholder="Actual Reason"></textarea>
-
-<button class="btn-resume" onclick="submitResume()">Submit Resume</button>
-<button class="btn-wa hidden" id="rsWaBtn" onclick="shareResume()">📲 Share on WhatsApp</button>
-<button class="btn-back" onclick="back()">Back</button>
+<textarea id="rs_rem" placeholder="Remarks"></textarea>
+<button class="btn-green" onclick="submitResume()">Submit</button>
+<button class="btn-wa hidden" id="rsWA" onclick="shareResume()">📲 Share WhatsApp</button>
+<button class="btn" onclick="back()">Back</button>
 </div>
 
-<div id="msg"></div>
+<!-- ACTIVE -->
+<div class="card hidden" id="activeBox">
+<h3>Active Shutdown</h3>
+<div id="activeList"></div>
+<button class="btn" onclick="back()">Back</button>
+</div>
+
+<div class="msg" id="msg"></div>
 </div>
 
 <script>
 /* ================= CONFIG ================= */
-const WEBAPP_URL =
-"https://script.google.com/macros/s/AKfycbyx7kSp2pxjpS3X3155p4K5bUq92dLE-EfXnee6ZyR6WgnLwUoidwLfW06d1aZffjs6XA/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyx7kSp2pxjpS3X3155p4K5bUq92dLE-EfXnee6ZyR6WgnLwUoidwLfW06d1aZffjs6XA/exec";
+const CSV_URL = "https://docs.google.com/spreadsheets/d/1NLMcoIjlo5elmrALUXPfvGOEqToS8tFPfGThRZ8maiU/export?format=csv";
 
-/* ================= STATE ================= */
-let CURRENT_USER = null;
-let LAST_SD = null;
-let LAST_RS = null;
+/* ================= USERS ================= */
+const USERS = {
+ admin:{pass:"admin123",inst:"ADMIN"},
+ akash:{pass:"1234",inst:"AKASH"},
+ itla:{pass:"1234",inst:"ITLA"}
+};
+
+/* ================= FEEDERS ================= */
+const FEEDERS = {
+ AKASH:["AKASH CERAMIC FEEDER"],
+ ITLA:["ITLA ONGC FEEDER-LG1"]
+};
+
+let USER=null, SD=null, RS=null;
+
+/* ================= HELPERS ================= */
+const validText=v=>/^[A-Za-z0-9 .]+$/.test(v);
+const numOnly=v=>/^[0-9]+$/.test(v);
+const msg=t=>document.getElementById("msg").innerText=t;
+
+function fillFeeders(sel){
+ sel.innerHTML="<option value=''>Select Feeder</option>";
+ let list=[];
+ if(USER.inst==="ADMIN"){
+  Object.values(FEEDERS).forEach(a=>list=list.concat(a));
+ } else list=FEEDERS[USER.inst];
+ list.forEach(f=>sel.innerHTML+=`<option>${f}</option>`);
+}
 
 /* ================= LOGIN ================= */
 function login(){
- if(loginUser.value==="121318" && loginPass.value==="admin123"){
-  CURRENT_USER="ADMIN";
-  loginBox.classList.add("hidden");
-  mainBox.classList.remove("hidden");
-  msg("✅ Login successful");
- } else {
-  msg("❌ Invalid login");
- }
+ let u=lu.value.trim(), p=lp.value.trim();
+ if(!USERS[u]||USERS[u].pass!==p){msg("❌ Invalid Login");return;}
+ USER={name:u,inst:USERS[u].inst};
+ loginBox.classList.add("hidden");
+ mainBox.classList.remove("hidden");
+ fillFeeders(sd_feeder); fillFeeders(rs_feeder);
+ msg("✅ Logged in");
 }
 
 /* ================= NAV ================= */
-function openShutdown(){
- mainBox.classList.add("hidden");
- shutdownBox.classList.remove("hidden");
-}
-function openResume(){
- mainBox.classList.add("hidden");
- resumeBox.classList.remove("hidden");
-}
+function openShutdown(){mainBox.classList.add("hidden");sdBox.classList.remove("hidden");sdWA.classList.add("hidden");}
+function openResume(){mainBox.classList.add("hidden");rsBox.classList.remove("hidden");rsWA.classList.add("hidden");}
+function openActive(){mainBox.classList.add("hidden");activeBox.classList.remove("hidden");loadActive();}
 function back(){
- shutdownBox.classList.add("hidden");
- resumeBox.classList.add("hidden");
+ sdBox.classList.add("hidden");
+ rsBox.classList.add("hidden");
+ activeBox.classList.add("hidden");
  mainBox.classList.remove("hidden");
-}
-function msg(t){
- document.getElementById("msg").innerText=t;
 }
 
 /* ================= SHUTDOWN ================= */
 function submitShutdown(){
- if(!sd_feeder.value||!sd_time.value||!sd_type.value||!sd_info.value){
-  msg("❌ Fill all shutdown fields"); return;
- }
- LAST_SD={
+ if(!sd_feeder.value||!sd_time.value||!sd_type.value||!sd_info.value){msg("❌ All fields required");return;}
+ if(!validText(sd_info.value)){msg("❌ Special characters not allowed");return;}
+
+ SD={
   feeder:sd_feeder.value,
   time:sd_time.value.replace("T"," "),
   type:sd_type.value,
@@ -140,37 +152,35 @@ function submitShutdown(){
 
  fetch(WEBAPP_URL+"?"+new URLSearchParams({
   action:"shutdown",
-  feeder:LAST_SD.feeder,
-  ShutdownTime:LAST_SD.time,
-  ShutdownType:LAST_SD.type,
-  Information:LAST_SD.info,
-  ShutdownEntryBy:CURRENT_USER,
-  Installation:"ALL"
+  feeder:SD.feeder,
+  ShutdownTime:SD.time,
+  ShutdownType:SD.type,
+  Information:SD.info,
+  ShutdownEntryBy:USER.name,
+  Installation:USER.inst
  }),{mode:"no-cors"});
 
- document.getElementById("sdWaBtn").classList.remove("hidden");
+ sdWA.classList.remove("hidden");
  msg("✅ Shutdown submitted");
 }
 
 function shareShutdown(){
- const d=LAST_SD;
- window.open(
-  "https://wa.me/?text="+encodeURIComponent(
-   "⚡ POWER SHUTDOWN\n\n"+
-   "Feeder: "+d.feeder+
-   "\nTime: "+d.time+
-   "\nType: "+d.type+
-   "\nInfo: "+d.info
-  ),"_blank"
- );
+ window.open("https://wa.me/?text="+encodeURIComponent(
+  "⚡ POWER SHUTDOWN – AREA IV\n\n"+
+  "Feeder: "+SD.feeder+
+  "\nTime: "+SD.time+
+  "\nType: "+SD.type+
+  "\nInfo: "+SD.info
+ ),"_blank");
 }
 
 /* ================= RESUME ================= */
 function submitResume(){
- if(!rs_feeder.value||!rs_time.value||!rs_loss.value||!rs_dg.value||!rs_rem.value){
-  msg("❌ Fill all resume fields"); return;
- }
- LAST_RS={
+ if(!rs_feeder.value||!rs_time.value||!rs_loss.value||!rs_dg.value||!rs_rem.value){msg("❌ All fields required");return;}
+ if(!numOnly(rs_loss.value)||!numOnly(rs_dg.value)){msg("❌ Numbers only in DG & Loss");return;}
+ if(!validText(rs_rem.value)){msg("❌ Special characters not allowed");return;}
+
+ RS={
   feeder:rs_feeder.value,
   time:rs_time.value.replace("T"," "),
   loss:rs_loss.value,
@@ -180,30 +190,43 @@ function submitResume(){
 
  fetch(WEBAPP_URL+"?"+new URLSearchParams({
   action:"resume",
-  feeder:LAST_RS.feeder,
-  ResumeTime:LAST_RS.time,
-  ResumeEntryBy:CURRENT_USER,
-  TotalProdLoss:LAST_RS.loss,
-  DGDeployed:LAST_RS.dg,
-  Remarks:LAST_RS.rem
+  feeder:RS.feeder,
+  ResumeTime:RS.time,
+  ResumeEntryBy:USER.name,
+  Remarks:RS.rem,
+  TotalProdLoss:RS.loss,
+  DGDeployed:RS.dg
  }),{mode:"no-cors"});
 
- document.getElementById("rsWaBtn").classList.remove("hidden");
+ rsWA.classList.remove("hidden");
  msg("✅ Resume submitted");
 }
 
 function shareResume(){
- const d=LAST_RS;
- window.open(
-  "https://wa.me/?text="+encodeURIComponent(
-   "✅ POWER RESUME\n\n"+
-   "Feeder: "+d.feeder+
-   "\nTime: "+d.time+
-   "\nLoss: "+d.loss+
-   "\nDG: "+d.dg+
-   "\nReason: "+d.rem
-  ),"_blank"
- );
+ window.open("https://wa.me/?text="+encodeURIComponent(
+  "✅ POWER RESUME – AREA IV\n\n"+
+  "Feeder: "+RS.feeder+
+  "\nTime: "+RS.time+
+  "\nLoss: "+RS.loss+
+  "\nDG: "+RS.dg+
+  "\nRemarks: "+RS.rem
+ ),"_blank");
+}
+
+/* ================= ACTIVE CSV ================= */
+function loadActive(){
+ activeList.innerHTML="Loading...";
+ fetch(CSV_URL).then(r=>r.text()).then(t=>{
+  let rows=t.trim().split("\n").slice(1), out="";
+  rows.forEach(r=>{
+   let c=r.split(",");
+   let feeder=c[0], resume=c[6], inst=c[5];
+   if(resume && resume!=="NA") return;
+   if(USER.inst!=="ADMIN" && inst!==USER.inst) return;
+   out+=`<div class="list"><b>${feeder}</b><br>${c[1]}<br>${c[3]}</div>`;
+  });
+  activeList.innerHTML=out||"No Active Shutdown";
+ });
 }
 </script>
 </body>
