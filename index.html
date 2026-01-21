@@ -2,12 +2,13 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>POWER SHUTDOWN MANAGEMENT APP - AREA-IV</title>
+<title>POWER SHUTDOWN MANAGEMENT – AREA IV</title>
 
 <style>
 body{font-family:Segoe UI,Arial;background:#f1f3f6;margin:0}
 header{background:#1f3a5f;color:#fff;padding:14px;font-size:18px;font-weight:700;text-align:center}
-.container{padding:16px;max-width:480px;margin:auto}
+.container{max-width:480px;margin:auto;padding:16px}
+.card{background:#fff;padding:16px;border-radius:14px;margin-bottom:14px}
 .hidden{display:none}
 input,select,textarea,button{
  width:100%;padding:12px;margin-top:10px;
@@ -17,15 +18,14 @@ button{border:none;font-weight:700;cursor:pointer}
 .btn-login{background:#1f3a5f;color:#fff}
 .btn-shutdown{background:#e74c3c;color:#fff}
 .btn-resume{background:#27ae60;color:#fff}
-.card{background:#fff;padding:16px;border-radius:14px;margin-bottom:14px}
+.btn-back{background:#7f8c8d;color:#fff}
+.btn-wa{background:#25D366;color:#fff}
 #msg{text-align:center;font-weight:700;margin-top:10px}
-.shutdown-item{border:1px solid #ddd;padding:12px;border-radius:12px;margin-bottom:10px}
-.whatsapp{background:#25D366;color:#fff;margin-top:8px}
 </style>
 </head>
 
 <body>
-<header>POWER SHUTDOWN MANAGEMENT APP – AREA-IV</header>
+<header>POWER SHUTDOWN MANAGEMENT APP – AREA IV</header>
 
 <div class="container">
 
@@ -39,16 +39,19 @@ button{border:none;font-weight:700;cursor:pointer}
 
 <!-- MAIN -->
 <div class="card hidden" id="mainBox">
-<h3>ACTIVE SHUTDOWNS</h3>
-<div id="activeShutdowns">Loading…</div>
-<button class="btn-shutdown" onclick="openShutdown()">Shutdown</button>
-<button class="btn-resume" onclick="openResume()">Resume</button>
+<h3 style="text-align:center">MAIN MENU</h3>
+<button class="btn-shutdown" onclick="openShutdown()">➕ Shutdown Entry</button>
+<button class="btn-resume" onclick="openResume()">✅ Resume Entry</button>
 </div>
 
 <!-- SHUTDOWN -->
 <div class="card hidden" id="shutdownBox">
 <h3>Shutdown Entry</h3>
-<select id="sd_feeder"></select>
+<select id="sd_feeder">
+<option value="">Select Feeder</option>
+<option>AKASH CERAMIC FEEDER</option>
+<option>ITLA ONGC FEEDER-LG1</option>
+</select>
 <input type="datetime-local" id="sd_time">
 <select id="sd_type">
 <option value="">Select Type</option>
@@ -56,135 +59,152 @@ button{border:none;font-weight:700;cursor:pointer}
 <option>UNPLAN PSD</option>
 </select>
 <textarea id="sd_info" placeholder="Information"></textarea>
-<button class="btn-shutdown" onclick="submitShutdown()">Submit</button>
-<button onclick="backToMain()">Back</button>
+
+<button class="btn-shutdown" onclick="submitShutdown()">Submit Shutdown</button>
+<button class="btn-wa hidden" id="sdWaBtn" onclick="shareShutdown()">📲 Share on WhatsApp</button>
+<button class="btn-back" onclick="back()">Back</button>
 </div>
 
 <!-- RESUME -->
 <div class="card hidden" id="resumeBox">
 <h3>Resume Entry</h3>
-<select id="rs_feeder"></select>
+<select id="rs_feeder">
+<option value="">Select Feeder</option>
+<option>AKASH CERAMIC FEEDER</option>
+<option>ITLA ONGC FEEDER-LG1</option>
+</select>
 <input type="datetime-local" id="rs_time">
 <input id="rs_loss" placeholder="Production Loss">
 <input id="rs_dg" placeholder="DG Deployed">
 <textarea id="rs_rem" placeholder="Actual Reason"></textarea>
-<button class="btn-resume" onclick="submitResume()">Submit</button>
-<button class="whatsapp hidden" id="resumeShareBtn" onclick="shareResume()">📲 Share Resume</button>
-<button onclick="backToMain()">Back</button>
+
+<button class="btn-resume" onclick="submitResume()">Submit Resume</button>
+<button class="btn-wa hidden" id="rsWaBtn" onclick="shareResume()">📲 Share on WhatsApp</button>
+<button class="btn-back" onclick="back()">Back</button>
 </div>
 
 <div id="msg"></div>
 </div>
 
 <script>
-const WEBAPP_URL="https://script.google.com/macros/s/AKfycbyx7kSp2pxjpS3X3155p4K5bUq92dLE-EfXnee6ZyR6WgnLwUoidwLfW06d1aZffjs6XA/exec";
-const CSV_URL="https://docs.google.com/spreadsheets/d/1NLMcoIjlo5elmrALUXPfvGOEqToS8tFPfGThRZ8maiU/export?format=csv";
+/* ================= CONFIG ================= */
+const WEBAPP_URL =
+"https://script.google.com/macros/s/AKfycbyx7kSp2pxjpS3X3155p4K5bUq92dLE-EfXnee6ZyR6WgnLwUoidwLfW06d1aZffjs6XA/exec";
 
-const USERS=[{u:"121318",p:"admin123",n:"ADMIN",i:"ALL",admin:true}];
-const FEEDERS={ALL:["AKASH CERAMIC FEEDER","ITLA ONGC FEEDER-LG1"]};
+/* ================= STATE ================= */
+let CURRENT_USER = null;
+let LAST_SD = null;
+let LAST_RS = null;
 
-let CURRENT_USER={}, LAST_SHUTDOWN={}, LAST_RESUME=null;
-
+/* ================= LOGIN ================= */
 function login(){
- const u=USERS.find(x=>x.u===loginUser.value && x.p===loginPass.value);
- if(!u){msg("❌ Invalid login");return;}
- CURRENT_USER=u;
- loginBox.classList.add("hidden");
+ if(loginUser.value==="121318" && loginPass.value==="admin123"){
+  CURRENT_USER="ADMIN";
+  loginBox.classList.add("hidden");
+  mainBox.classList.remove("hidden");
+  msg("✅ Login successful");
+ } else {
+  msg("❌ Invalid login");
+ }
+}
+
+/* ================= NAV ================= */
+function openShutdown(){
+ mainBox.classList.add("hidden");
+ shutdownBox.classList.remove("hidden");
+}
+function openResume(){
+ mainBox.classList.add("hidden");
+ resumeBox.classList.remove("hidden");
+}
+function back(){
+ shutdownBox.classList.add("hidden");
+ resumeBox.classList.add("hidden");
  mainBox.classList.remove("hidden");
- populateFeeders();
- loadActive();
+}
+function msg(t){
+ document.getElementById("msg").innerText=t;
 }
 
-function populateFeeders(){
- sd_feeder.innerHTML=rs_feeder.innerHTML="";
- FEEDERS.ALL.forEach(f=>{
-  sd_feeder.innerHTML+=`<option>${f}</option>`;
-  rs_feeder.innerHTML+=`<option>${f}</option>`;
- });
-}
-
-function loadActive(){
- fetch(CSV_URL+"&t="+Date.now())
- .then(r=>r.text())
- .then(t=>{
-  activeShutdowns.innerHTML="";
-  LAST_SHUTDOWN={};
-  t.split("\n").slice(1).forEach(r=>{
-   const c=r.split(",");
-   if(c.length < 2) return;   // ✅ FIX
-   const feeder=c[0], sd=c[1], resume=c[6]||"";
-   if(!resume){
-    LAST_SHUTDOWN[feeder]=sd;
-    activeShutdowns.innerHTML+=`
-      <div class="shutdown-item">
-        <b>${feeder}</b><br>${sd}
-        <button class="whatsapp"
-          onclick="shareShutdown('${feeder}','${sd}')">
-          📲 Share Shutdown
-        </button>
-      </div>`;
-   }
-  });
- });
-}
-
+/* ================= SHUTDOWN ================= */
 function submitShutdown(){
+ if(!sd_feeder.value||!sd_time.value||!sd_type.value||!sd_info.value){
+  msg("❌ Fill all shutdown fields"); return;
+ }
+ LAST_SD={
+  feeder:sd_feeder.value,
+  time:sd_time.value.replace("T"," "),
+  type:sd_type.value,
+  info:sd_info.value
+ };
+
  fetch(WEBAPP_URL+"?"+new URLSearchParams({
   action:"shutdown",
-  feeder:sd_feeder.value,
-  ShutdownTime:sd_time.value.replace("T"," "),
-  ShutdownType:sd_type.value,
-  Information:sd_info.value,
-  ShutdownEntryBy:CURRENT_USER.n,
-  Installation:CURRENT_USER.i
- }));
+  feeder:LAST_SD.feeder,
+  ShutdownTime:LAST_SD.time,
+  ShutdownType:LAST_SD.type,
+  Information:LAST_SD.info,
+  ShutdownEntryBy:CURRENT_USER,
+  Installation:"ALL"
+ }),{mode:"no-cors"});
+
+ document.getElementById("sdWaBtn").classList.remove("hidden");
  msg("✅ Shutdown submitted");
- backToMain();
 }
 
+function shareShutdown(){
+ const d=LAST_SD;
+ window.open(
+  "https://wa.me/?text="+encodeURIComponent(
+   "⚡ POWER SHUTDOWN\n\n"+
+   "Feeder: "+d.feeder+
+   "\nTime: "+d.time+
+   "\nType: "+d.type+
+   "\nInfo: "+d.info
+  ),"_blank"
+ );
+}
+
+/* ================= RESUME ================= */
 function submitResume(){
- LAST_RESUME={
+ if(!rs_feeder.value||!rs_time.value||!rs_loss.value||!rs_dg.value||!rs_rem.value){
+  msg("❌ Fill all resume fields"); return;
+ }
+ LAST_RS={
   feeder:rs_feeder.value,
   time:rs_time.value.replace("T"," "),
   loss:rs_loss.value,
   dg:rs_dg.value,
   rem:rs_rem.value
  };
+
  fetch(WEBAPP_URL+"?"+new URLSearchParams({
   action:"resume",
-  feeder:LAST_RESUME.feeder,
-  ResumeTime:LAST_RESUME.time,
-  ResumeEntryBy:CURRENT_USER.n,
-  TotalProdLoss:LAST_RESUME.loss,
-  DGDeployed:LAST_RESUME.dg,
-  Remarks:LAST_RESUME.rem
- }));
- document.getElementById("resumeShareBtn").classList.remove("hidden");
+  feeder:LAST_RS.feeder,
+  ResumeTime:LAST_RS.time,
+  ResumeEntryBy:CURRENT_USER,
+  TotalProdLoss:LAST_RS.loss,
+  DGDeployed:LAST_RS.dg,
+  Remarks:LAST_RS.rem
+ }),{mode:"no-cors"});
+
+ document.getElementById("rsWaBtn").classList.remove("hidden");
  msg("✅ Resume submitted");
 }
 
-function shareShutdown(f,t){
- window.open("https://wa.me/?text="+encodeURIComponent(
-  "⚡ POWER SHUTDOWN\n\nFeeder: "+f+"\nTime: "+t
- ));
-}
 function shareResume(){
- const d=LAST_RESUME;
- window.open("https://wa.me/?text="+encodeURIComponent(
-  "✅ POWER RESUME\n\nFeeder: "+d.feeder+"\nTime: "+d.time+
-  "\nLoss: "+d.loss+"\nDG: "+d.dg+"\nReason: "+d.rem
- ));
+ const d=LAST_RS;
+ window.open(
+  "https://wa.me/?text="+encodeURIComponent(
+   "✅ POWER RESUME\n\n"+
+   "Feeder: "+d.feeder+
+   "\nTime: "+d.time+
+   "\nLoss: "+d.loss+
+   "\nDG: "+d.dg+
+   "\nReason: "+d.rem
+  ),"_blank"
+ );
 }
-
-function openShutdown(){mainBox.classList.add("hidden");shutdownBox.classList.remove("hidden")}
-function openResume(){mainBox.classList.add("hidden");resumeBox.classList.remove("hidden")}
-function backToMain(){
- shutdownBox.classList.add("hidden");
- resumeBox.classList.add("hidden");
- mainBox.classList.remove("hidden");
- loadActive();
-}
-function msg(t){document.getElementById("msg").innerText=t}
 </script>
 </body>
 </html>
