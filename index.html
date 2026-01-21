@@ -1,4 +1,3 @@
-
 <html>
 <head>
 <meta charset="UTF-8">
@@ -59,14 +58,6 @@ button{
   margin-bottom:14px;
   box-shadow:0 6px 18px rgba(0,0,0,.08);
 }
-.shutdown-row{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:8px;
-  font-size:14px;
-}
-.shutdown-label{color:#6b7280;font-weight:600}
-.shutdown-value{font-weight:700}
 .install-badge{
   padding:4px 12px;
   border-radius:999px;
@@ -83,9 +74,9 @@ button{
 <header>POWER SHUTDOWN MANAGEMENT APP - AREA-IV</header>
 
 <div id="userInfo" class="hidden" style="
-  background:#fff;margin:10px 16px;padding:10px 14px;
-  border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.06);
-  text-align:center;">
+background:#fff;margin:10px 16px;padding:10px 14px;
+border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.06);
+text-align:center;">
   <div id="ui_name" style="font-weight:700;color:#1f3a5f"></div>
   <div id="ui_inst" style="font-size:13px;color:#6b7280"></div>
 </div>
@@ -130,7 +121,6 @@ button{
 <input id="rs_dg" type="number" placeholder="DG Deployed">
 <textarea id="rs_rem" placeholder="Actual Reason"></textarea>
 <button class="btn-resume" onclick="submitResume()">Submit</button>
-<button id="resumeShareBtn" class="btn-resume hidden" onclick="shareResumeWhatsApp()">📲 Share Resume</button>
 <button class="btn-back" onclick="backToMain()">Back</button>
 </div>
 
@@ -138,11 +128,11 @@ button{
 </div>
 
 <script>
-const WEBAPP_URL="https://script.google.com/macros/s/AKfycbyOHQzRGiI0ql-Tlzbm9BhtFfE12YXEIy9TCfP1_uzdtbn4ltTcjBWJwnpWOF1-u08tkA/exec";
-const CSV_URL="https://docs.google.com/spreadsheets/d/1NLMcoIjlo5elmrALUXPfvGOEqToS8tFPfGThRZ8maiU/export?format=csv";
+const WEBAPP_URL="YOUR_WEBAPP_URL";
+const CSV_URL="YOUR_CSV_URL";
 
 const USERS=[
- {u:"121318",p:"admin123",n:"SYSTEM ADMIN",i:"ALL",admin:true},
+ {u:"121318",p:"admin123",n:"SYSTEM ADMIN",i:"ALL"},
  {u:"130594",p:"1234",n:"MAHESH GAJJAR",i:"MOTERA-GGS"}
 ];
 
@@ -151,22 +141,28 @@ const FEEDERS={
  "ALL":["PREKSHA BHARTI INFOCITY FEEDER","TP-44 FEEDER","ZUNDAL AG FEEDER"]
 };
 
-let CURRENT_USER={}, LAST_SHUTDOWN_TIME={}, LAST_RESUME_DATA=null;
+let CURRENT_USER={};
+
+function nowLocal(){
+ const d=new Date();
+ d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+ return d.toISOString().slice(0,16);
+}
 
 function toIST(dt){
  return new Date(dt).toISOString().slice(0,19).replace("T"," ");
 }
 
-function parseCSV(text){
- const rows=[];let row=[],cur="",inside=false;
- for(let c of text){
-  if(c=='"')inside=!inside;
-  else if(c==","&&!inside){row.push(cur);cur="";}
-  else if(c=="\n"&&!inside){row.push(cur);rows.push(row);row=[];cur="";}
-  else cur+=c;
+function parseCSV(t){
+ const r=[];let row=[],c="",q=false;
+ for(let ch of t){
+  if(ch=='"') q=!q;
+  else if(ch==","&&!q){row.push(c);c="";}
+  else if(ch=="\n"&&!q){row.push(c);r.push(row);row=[];c="";}
+  else c+=ch;
  }
- row.push(cur);rows.push(row);
- return rows.map(r=>r.map(x=>x.replace(/"/g,"").trim()));
+ row.push(c);r.push(row);
+ return r.map(x=>x.map(y=>y.replace(/"/g,"").trim()));
 }
 
 function login(){
@@ -188,10 +184,12 @@ function populateFeeders(){
   sd_feeder.innerHTML+=`<option>${f}</option>`;
   rs_feeder.innerHTML+=`<option>${f}</option>`;
  });
+ sd_time.value=nowLocal();
+ rs_time.value=nowLocal();
 }
 
 function loadActiveShutdowns(){
- LAST_SHUTDOWN_TIME={};
+ activeShutdowns.innerHTML="Loading...";
  fetch(CSV_URL+"&t="+Date.now())
  .then(r=>r.text())
  .then(t=>{
@@ -204,22 +202,22 @@ function loadActiveShutdowns(){
    inst:h.indexOf("INSTALLATION"),
    type:h.indexOf("TYPE")
   };
-  activeShutdowns.innerHTML="";
-  let count=0;
+  let html="",count=0;
   rows.forEach(r=>{
    if(!r[i.rs]||r[i.rs]=="NA"){
-    LAST_SHUTDOWN_TIME[r[i.feeder]]=r[i.sd];
     count++;
-    activeShutdowns.innerHTML+=`
-    <div class="shutdown-item">
-     <b>${r[i.feeder]}</b><br>
-     ${r[i.type]}<br>
-     ${r[i.sd]}<br>
-     <span class="install-badge">${r[i.inst]}</span>
+    html+=`<div class="shutdown-item">
+      <b>${r[i.feeder]}</b><br>
+      ${r[i.type]}<br>
+      ${r[i.sd]}<br>
+      <span class="install-badge">${r[i.inst]}</span>
     </div>`;
    }
   });
-  if(!count)activeShutdowns.innerHTML="✅ All feeders healthy";
+  activeShutdowns.innerHTML=count?html:"✅ All feeders healthy";
+ })
+ .catch(()=>{
+  activeShutdowns.innerHTML="⚠ Unable to load data";
  });
 }
 
@@ -247,15 +245,17 @@ function submitResume(){
   DGDeployed:rs_dg.value,
   Remarks:rs_rem.value
  }),{mode:"no-cors"});
- LAST_RESUME_DATA={feeder:rs_feeder.value,resumeTime:toIST(rs_time.value)};
- document.getElementById("resumeShareBtn").classList.remove("hidden");
  showMsg("Resume Submitted");
+ backToMain();
 }
 
 function openShutdown(){mainBox.classList.add("hidden");shutdownBox.classList.remove("hidden");}
 function openResume(){mainBox.classList.add("hidden");resumeBox.classList.remove("hidden");}
 function backToMain(){shutdownBox.classList.add("hidden");resumeBox.classList.add("hidden");mainBox.classList.remove("hidden");loadActiveShutdowns();}
 function showMsg(t){msg.innerText=t;setTimeout(()=>msg.innerText="",3000);}
+
+/* REQUIRED EMPTY FUNCTION – PREVENT JS CRASH */
+function shareResumeWhatsApp(){}
 </script>
 </body>
 </html>
