@@ -327,7 +327,6 @@ if(hasSpecialChar(rs_rem.value)){
  return;
 }
 
-
  if(!LAST_SHUTDOWN_TIME[rs_feeder.value]){
   showMsg("Feeder not found in shutdown");
   return;
@@ -361,7 +360,6 @@ if(hasSpecialChar(rs_rem.value)){
   user: CURRENT_USER.n,
   inst: CURRENT_USER.i
  };
-
  // ✅ SHOW WHATSAPP BUTTON
  document.getElementById("resumeShareBtn").classList.remove("hidden");
 
@@ -377,20 +375,16 @@ function submitShutdown(){
  showMsg("All Shutdown fields required");
  return;
 }
-
 // 🚫 Special character validation
 if(hasSpecialChar(sd_info.value)){
  showMsg("❌ Do not use special characters");
  return;
 }
-
-
  // 🚫 Prevent duplicate shutdown
  if(LAST_SHUTDOWN_TIME[sd_feeder.value]){
   showMsg("Feeder already in shutdown");
   return;
  }
-
  fetch(WEBAPP_URL+"?"+new URLSearchParams({
   action:"shutdown",
   feeder:sd_feeder.value,
@@ -404,7 +398,6 @@ if(hasSpecialChar(sd_info.value)){
  showMsg("Shutdown Submitted");
  backToMain();
 }
-
 function openShutdown(){mainBox.classList.add("hidden");shutdownBox.classList.remove("hidden")}
 function openResume(){
  mainBox.classList.add("hidden");
@@ -435,28 +428,10 @@ function shareWhatsApp(feeder, type, time, inst){
 }
 function shareResumeWhatsApp(){
  if(!LAST_RESUME_DATA){
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   showMsg("No Resume Data Found");
   return;
  }
-
  const d = LAST_RESUME_DATA;
-
  const msg =
   "✅ *POWER RESUME UPDATE* ✅\n\n" +
   "🔌 *Feeder:* " + d.feeder + "\n" +
@@ -466,7 +441,6 @@ function shareResumeWhatsApp(){
   "👤 *Updated By:* " + d.user + "\n" +
   "🏭 *Installation:* " + d.inst + "\n\n" +
   "— Area-IV Power Shutdown App";
-
  window.open(
   "https://wa.me/?text=" + encodeURIComponent(msg),
   "_blank"
