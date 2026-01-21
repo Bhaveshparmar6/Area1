@@ -1,102 +1,48 @@
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>POWER SHUTDOWN MANAGEMENT APP - AREA-IV</title>
 
 <style>
-body{
-  font-family:"Segoe UI",Roboto,Arial;
-  background:#f1f3f6;
-  margin:0;
-}
-header{
-  background:#1f3a5f;
-  color:#fff;
-  padding:14px 18px;
-  font-size:18px;
-  font-weight:600;
-  text-align:center;
-}
-.container{
-  padding:16px;
-  max-width:480px;
-  margin:auto;
-}
-.card{margin-bottom:20px}
-h2,h3{
-  margin:12px 0;
-  color:#1f3a5f;
-  text-align:center;
-}
-input,select,textarea{
-  width:100%;
-  padding:12px;
-  margin-top:6px;
-  border-radius:10px;
-  border:1px solid #dcdfe4;
-  font-size:15px;
-}
-button{
-  width:100%;
-  padding:14px;
-  margin-top:14px;
-  font-size:16px;
-  font-weight:600;
-  border:none;
-  border-radius:14px;
-  cursor:pointer;
-}
+body{font-family:Segoe UI,Arial;background:#f1f3f6;margin:0}
+header{background:#1f3a5f;color:#fff;padding:14px;text-align:center;font-weight:600}
+.container{max-width:480px;margin:auto;padding:16px}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 4px 10px rgba(0,0,0,.08)}
+input,select,textarea,button{width:100%;padding:12px;margin-top:8px;border-radius:10px;font-size:15px}
+button{border:none;font-weight:600;cursor:pointer}
 .btn-login{background:#1f3a5f;color:#fff}
 .btn-shutdown{background:#e74c3c;color:#fff}
 .btn-resume{background:#27ae60;color:#fff}
 .btn-back{background:#7f8c8d;color:#fff}
 .hidden{display:none}
-.shutdown-item{
-  background:#fff;
-  border-radius:16px;
-  padding:18px;
-  margin-bottom:14px;
-  box-shadow:0 6px 18px rgba(0,0,0,.08);
-}
-.install-badge{
-  padding:4px 12px;
-  border-radius:999px;
-  background:#e5f0ff;
-  color:#1f3a5f;
-  font-size:12px;
-  font-weight:700;
-}
-#msg{text-align:center;margin-top:10px;font-weight:600}
+.shutdown-item{background:#f9fafb;border-radius:12px;padding:12px;margin-bottom:10px}
+#msg{text-align:center;font-weight:600;margin-top:10px}
 </style>
 </head>
 
 <body>
 <header>POWER SHUTDOWN MANAGEMENT APP - AREA-IV</header>
 
-<div id="userInfo" class="hidden" style="
-background:#fff;margin:10px 16px;padding:10px 14px;
-border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.06);
-text-align:center;">
-  <div id="ui_name" style="font-weight:700;color:#1f3a5f"></div>
-  <div id="ui_inst" style="font-size:13px;color:#6b7280"></div>
-</div>
-
 <div class="container">
 
+<!-- LOGIN -->
 <div class="card" id="loginBox">
-<h3>USER LOGIN</h3>
+<h3>User Login</h3>
 <input id="loginUser" placeholder="Username">
 <input id="loginPass" type="password" placeholder="Password">
 <button class="btn-login" onclick="login()">Login</button>
 </div>
 
+<!-- MAIN -->
 <div class="card hidden" id="mainBox">
-<h2>ACTIVE SHUTDOWN FEEDERS</h2>
+<h3>Active Shutdown Feeders</h3>
 <div id="activeShutdowns">Loading...</div>
 <button class="btn-shutdown" onclick="openShutdown()">Shutdown</button>
 <button class="btn-resume" onclick="openResume()">Resume</button>
 </div>
 
+<!-- SHUTDOWN -->
 <div class="card hidden" id="shutdownBox">
 <h3>Shutdown Entry</h3>
 <select id="sd_feeder"></select>
@@ -104,22 +50,21 @@ text-align:center;">
 <select id="sd_type">
 <option value="">Select Type</option>
 <option>PLAN PSD</option>
-<option>PARTIAL PLAN PSD</option>
 <option>UNPLAN PSD</option>
-<option>PARTIAL UNPLAN PSD</option>
 </select>
 <textarea id="sd_info" placeholder="Information"></textarea>
 <button class="btn-shutdown" onclick="submitShutdown()">Submit</button>
 <button class="btn-back" onclick="backToMain()">Back</button>
 </div>
 
+<!-- RESUME -->
 <div class="card hidden" id="resumeBox">
 <h3>Resume Entry</h3>
 <select id="rs_feeder"></select>
 <input type="datetime-local" id="rs_time">
-<input id="rs_loss" type="number" placeholder="Production Loss">
-<input id="rs_dg" type="number" placeholder="DG Deployed">
-<textarea id="rs_rem" placeholder="Actual Reason"></textarea>
+<input id="rs_loss" placeholder="Production Loss">
+<input id="rs_dg" placeholder="DG Deployed">
+<textarea id="rs_rem" placeholder="Remarks"></textarea>
 <button class="btn-resume" onclick="submitResume()">Submit</button>
 <button class="btn-back" onclick="backToMain()">Back</button>
 </div>
@@ -128,8 +73,9 @@ text-align:center;">
 </div>
 
 <script>
-const WEBAPP_URL="https://script.google.com/macros/s/AKfycbzko0wuIwidy4ECsUJPjdpPrQw7p8hMAJxyv0TcvVOL1bQq3vyddwTSfxSnAVyWy3g1SA/exec";
-const CSV_URL="https://docs.google.com/spreadsheets/d/1NLMcoIjlo5elmrALUXPfvGOEqToS8tFPfGThRZ8maiU/export?format=csv";
+/* 🔴 REPLACE THESE */
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxwT7_rAzLaioeVVM0APL-4y196y1r85-GHwgqLBuEzec3WHvHEGfYBtG44ulEaHFvBmw/exec";
+const CSV_URL = "https://docs.google.com/spreadsheets/d/1NLMcoIjlo5elmrALUXPfvGOEqToS8tFPfGThRZ8maiU/export?format=csv";
 
 const USERS=[
  {u:"121318",p:"admin123",n:"SYSTEM ADMIN",i:"ALL"},
@@ -137,53 +83,32 @@ const USERS=[
 ];
 
 const FEEDERS={
- "MOTERA-GGS":["PREKSHA BHARTI INFOCITY FEEDER","TP-44 FEEDER","ZUNDAL AG FEEDER"],
- "ALL":["PREKSHA BHARTI INFOCITY FEEDER","TP-44 FEEDER","ZUNDAL AG FEEDER"]
+ "ALL":["PREKSHA BHARTI INFOCITY FEEDER","TP-44 FEEDER","ZUNDAL AG FEEDER"],
+ "MOTERA-GGS":["PREKSHA BHARTI INFOCITY FEEDER","TP-44 FEEDER","ZUNDAL AG FEEDER"]
 };
 
 let CURRENT_USER={};
 
 function nowLocal(){
- const d=new Date();
+ let d=new Date();
  d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
  return d.toISOString().slice(0,16);
 }
 
-function toIST(dt){
- return new Date(dt).toISOString().slice(0,19).replace("T"," ");
-}
-
-function parseCSV(t){
- const r=[];let row=[],c="",q=false;
- for(let ch of t){
-  if(ch=='"') q=!q;
-  else if(ch==","&&!q){row.push(c);c="";}
-  else if(ch=="\n"&&!q){row.push(c);r.push(row);row=[];c="";}
-  else c+=ch;
- }
- row.push(c);r.push(row);
- return r.map(x=>x.map(y=>y.replace(/"/g,"").trim()));
-}
-
 function login(){
- const u=USERS.find(x=>x.u===loginUser.value.trim() && x.p===loginPass.value.trim());
- if(!u){
-   showMsg("❌ Invalid Login");
-   return;
- }
+ let u=USERS.find(x=>x.u===loginUser.value && x.p===loginPass.value);
+ if(!u){msg("❌ Invalid Login");return;}
  CURRENT_USER=u;
- ui_name.innerText="👤 "+u.n;
- ui_inst.innerText="Installation : "+u.i;
- userInfo.classList.remove("hidden");
  loginBox.classList.add("hidden");
  mainBox.classList.remove("hidden");
  populateFeeders();
- loadActiveShutdowns();
- showMsg("✅ Login Success");
+ loadActive();
+ msg("✅ Login Successful");
 }
 
 function populateFeeders(){
- sd_feeder.innerHTML=rs_feeder.innerHTML="";
+ sd_feeder.innerHTML="";
+ rs_feeder.innerHTML="";
  (FEEDERS[CURRENT_USER.i]||FEEDERS.ALL).forEach(f=>{
   sd_feeder.innerHTML+=`<option>${f}</option>`;
   rs_feeder.innerHTML+=`<option>${f}</option>`;
@@ -192,36 +117,27 @@ function populateFeeders(){
  rs_time.value=nowLocal();
 }
 
-function loadActiveShutdowns(){
- activeShutdowns.innerHTML="Loading...";
+function loadActive(){
  fetch(CSV_URL+"&t="+Date.now())
  .then(r=>r.text())
  .then(t=>{
-  const rows=parseCSV(t);
-  const h=rows.shift().map(x=>x.toUpperCase());
-  const i={
- feeder:h.indexOf("FEEDER"),
- sd:h.indexOf("SHUTDOWN TIME"),
- rs:h.indexOf("RESUME TIME"),
- inst:h.indexOf("INSTALLATION"),
- type:h.indexOf("SHUTDOWN TYPE")
-};
-  let html="",count=0;
+  let rows=t.trim().split("\n").map(r=>r.split(","));
+  let h=rows.shift().map(x=>x.replace(/"/g,"").toUpperCase());
+  let i={
+   feeder:h.indexOf("FEEDER"),
+   sd:h.indexOf("SHUTDOWN TIME"),
+   rs:h.indexOf("RESUME TIME"),
+   type:h.indexOf("SHUTDOWN TYPE")
+  };
+  let html="";
   rows.forEach(r=>{
    if(!r[i.rs]||r[i.rs]=="NA"){
-    count++;
     html+=`<div class="shutdown-item">
-      <b>${r[i.feeder]}</b><br>
-      ${r[i.type]}<br>
-      ${r[i.sd]}<br>
-      <span class="install-badge">${r[i.inst]}</span>
+    <b>${r[i.feeder]}</b><br>${r[i.type]}<br>${r[i.sd]}
     </div>`;
    }
   });
-  activeShutdowns.innerHTML=count?html:"✅ All feeders healthy";
- })
- .catch(()=>{
-  activeShutdowns.innerHTML="⚠ Unable to load data";
+  activeShutdowns.innerHTML=html||"✅ No Active Shutdown";
  });
 }
 
@@ -229,13 +145,13 @@ function submitShutdown(){
  fetch(WEBAPP_URL+"?"+new URLSearchParams({
   action:"shutdown",
   feeder:sd_feeder.value,
-  ShutdownTime:toIST(sd_time.value),
+  ShutdownTime:sd_time.value.replace("T"," "),
   ShutdownType:sd_type.value,
-  Information:sd_info.value.toUpperCase(),
+  Information:sd_info.value,
   ShutdownEntryBy:CURRENT_USER.n,
   Installation:CURRENT_USER.i
  }),{mode:"no-cors"});
- showMsg("Shutdown Submitted");
+ msg("✅ Shutdown Submitted");
  backToMain();
 }
 
@@ -243,23 +159,20 @@ function submitResume(){
  fetch(WEBAPP_URL+"?"+new URLSearchParams({
   action:"resume",
   feeder:rs_feeder.value,
-  ResumeTime:toIST(rs_time.value),
+  ResumeTime:rs_time.value.replace("T"," "),
   ResumeEntryBy:CURRENT_USER.n,
+  Remarks:rs_rem.value,
   TotalProdLoss:rs_loss.value,
-  DGDeployed:rs_dg.value,
-  Remarks:rs_rem.value
+  DGDeployed:rs_dg.value
  }),{mode:"no-cors"});
- showMsg("Resume Submitted");
+ msg("✅ Resume Submitted");
  backToMain();
 }
 
 function openShutdown(){mainBox.classList.add("hidden");shutdownBox.classList.remove("hidden");}
 function openResume(){mainBox.classList.add("hidden");resumeBox.classList.remove("hidden");}
-function backToMain(){shutdownBox.classList.add("hidden");resumeBox.classList.add("hidden");mainBox.classList.remove("hidden");loadActiveShutdowns();}
-function showMsg(t){msg.innerText=t;setTimeout(()=>msg.innerText="",3000);}
-
-/* REQUIRED EMPTY FUNCTION – PREVENT JS CRASH */
-function shareResumeWhatsApp(){}
+function backToMain(){shutdownBox.classList.add("hidden");resumeBox.classList.add("hidden");mainBox.classList.remove("hidden");loadActive();}
+function msg(t){document.getElementById("msg").innerText=t;setTimeout(()=>msg.innerText="",3000);}
 </script>
 </body>
 </html>
