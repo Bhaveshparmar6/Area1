@@ -154,10 +154,14 @@ button{
   onclick="shareResumeWhatsApp()">
   📲 Share Resume on WhatsApp
 </button>
-
 <button type="button" class="btn-back" onclick="backToMain()">Back</button>
+</div>
 
-<div id="msg"></div>
+<div id="msg"
+ style="text-align:center;
+        margin-top:10px;
+        font-weight:600;
+        color:#e74c3c">
 </div>
 
 <script>
@@ -400,8 +404,12 @@ function backToMain(){
  mainBox.classList.remove("hidden");
  loadActiveShutdowns();
 }
-function showMsg(t){msg.innerText=t;setTimeout(()=>msg.innerText="",3000)}
-setInterval(loadActiveShutdowns,30000);
+function showMsg(t){
+  const m = document.getElementById("msg");
+  if(!m) return;
+  m.innerText = t;
+  setTimeout(()=>m.innerText="",3000);
+}
 function shareWhatsApp(feeder, type, time, inst){
  const msg =
   "⚡ *POWER SHUTDOWN ALERT* ⚡\n\n" +
