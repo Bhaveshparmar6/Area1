@@ -422,10 +422,10 @@ if(hasSpecialChar(sd_info.value)){
 }
 
 function backToMain(){
- shutdownBox.classList.add("hidden");
- resumeBox.classList.add("hidden");
- mainBox.classList.remove("hidden");
- loadActiveShutdowns();
+  shutdownBox.style.display = "none";
+  resumeBox.style.display = "none";
+  mainBox.style.display = "block";
+  loadActiveShutdowns();
 }
 function showMsg(t){
   const m = document.getElementById("msg");
