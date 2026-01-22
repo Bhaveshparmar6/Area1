@@ -360,7 +360,9 @@ function submitResume(){
 
  showMsg("Resume Submitted");
 }
-
+function hasSpecialChar(text){
+ return !/^[a-zA-Z0-9 \-/]+$/.test(text);
+}
 function submitShutdown(){
  if(!sd_feeder.value||!sd_time.value||!sd_type.value||!sd_info.value){
  showMsg("All Shutdown fields required");
@@ -457,6 +459,27 @@ document.querySelectorAll("textarea, input[type=text]").forEach(el=>{
   el.value = el.value.replace(/[^a-zA-Z0-9 \-/]/g,"");
  });
 });
+function openShutdown(){
+ // hide others
+ mainBox.classList.add("hidden");
+ resumeBox.classList.add("hidden");
+
+ // show shutdown page
+ shutdownBox.classList.remove("hidden");
+}
+
+function openResume(){
+ // hide others
+ mainBox.classList.add("hidden");
+ shutdownBox.classList.add("hidden");
+
+ // show resume page
+ resumeBox.classList.remove("hidden");
+
+ // hide whatsapp button initially
+ document.getElementById("resumeShareBtn").classList.add("hidden");
+}
+
 </script>
 </body>
 </html>
