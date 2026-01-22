@@ -475,19 +475,18 @@ document.querySelectorAll("textarea, input[type=text]").forEach(el=>{
  });
 });
 function openShutdown(){
- console.log("Shutdown Open");
- mainBox.classList.add("hidden");
- resumeBox.classList.add("hidden");
- shutdownBox.classList.remove("hidden");
+  console.log("Shutdown Open");
+  mainBox.style.display = "none";
+  resumeBox.style.display = "none";
+  shutdownBox.style.display = "block";
 }
 
 function openResume(){
- console.log("Resume Open");
- mainBox.classList.add("hidden");
- shutdownBox.classList.add("hidden");
- resumeBox.classList.remove("hidden");
-
- document.getElementById("resumeShareBtn").classList.add("hidden");
+  console.log("Resume Open");
+  mainBox.style.display = "none";
+  shutdownBox.style.display = "none";
+  resumeBox.style.display = "block";
+  document.getElementById("resumeShareBtn").classList.add("hidden");
 }
 </script>
 </body>
