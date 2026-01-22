@@ -360,9 +360,7 @@ function submitResume(){
 
  showMsg("Resume Submitted");
 }
-function hasSpecialChar(text){
- return !/^[a-zA-Z0-9 \-/]+$/.test(text);
-}
+
 function submitShutdown(){
  if(!sd_feeder.value||!sd_time.value||!sd_type.value||!sd_info.value){
  showMsg("All Shutdown fields required");
@@ -395,16 +393,6 @@ if(hasSpecialChar(sd_info.value)){
  showMsg("Shutdown Submitted");
  backToMain();
 }
-function openShutdown(){
- mainBox.classList.add("hidden");
- resumeBox.classList.add("hidden");
- shutdownBox.classList.remove("hidden");
-}
-
-function openResume(){
- mainBox.classList.add("hidden");
- shutdownBox.classList.add("hidden");
- resumeBox.classList.remove("hidden");
 
  // hide WhatsApp button initially
  document.getElementById("resumeShareBtn").classList.add("hidden");
@@ -460,26 +448,20 @@ document.querySelectorAll("textarea, input[type=text]").forEach(el=>{
  });
 });
 function openShutdown(){
- // hide others
+ console.log("Shutdown Open");
  mainBox.classList.add("hidden");
  resumeBox.classList.add("hidden");
-
- // show shutdown page
  shutdownBox.classList.remove("hidden");
 }
 
 function openResume(){
- // hide others
+ console.log("Resume Open");
  mainBox.classList.add("hidden");
  shutdownBox.classList.add("hidden");
-
- // show resume page
  resumeBox.classList.remove("hidden");
 
- // hide whatsapp button initially
  document.getElementById("resumeShareBtn").classList.add("hidden");
 }
-
 </script>
 </body>
 </html>
