@@ -360,11 +360,7 @@ function submitResume(){
 
  showMsg("Resume Submitted");
 }
-function hasSpecialChar(text){
-  // allowed: letters, numbers, space, - and /
-  const regex = /^[a-zA-Z0-9 \-/]+$/;
-  return !regex.test(text);
-}
+
 function submitShutdown(){
  if(!sd_feeder.value||!sd_time.value||!sd_type.value||!sd_info.value){
  showMsg("All Shutdown fields required");
@@ -398,25 +394,20 @@ if(hasSpecialChar(sd_info.value)){
  backToMain();
 }
 function openShutdown(){
- alert("Shutdown clicked");
  mainBox.classList.add("hidden");
+ resumeBox.classList.add("hidden");
  shutdownBox.classList.remove("hidden");
 }
 
 function openResume(){
- alert("Resume clicked");
  mainBox.classList.add("hidden");
- resumeBox.classList.remove("hidden");
-}
-
-function openShutdown(){mainBox.classList.add("hidden");shutdownBox.classList.remove("hidden")}
-function openResume(){
- mainBox.classList.add("hidden");
+ shutdownBox.classList.add("hidden");
  resumeBox.classList.remove("hidden");
 
- // hide initially, will show only after submit
+ // hide WhatsApp button initially
  document.getElementById("resumeShareBtn").classList.add("hidden");
 }
+
 function backToMain(){
  shutdownBox.classList.add("hidden");
  resumeBox.classList.add("hidden");
